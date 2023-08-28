@@ -2,6 +2,24 @@ import { Request, Response } from "express";
 
 import bookingModel from "../models/booking";
 import userModel from "../models/user";
+import mongoose from "mongoose";
+
+export const getUserbookings = async (req: Request, res: Response) => {
+  const _id = req.body.decoded._id;
+  const date = new Date(req.body.date);
+
+  const startDate = new Date(date);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(date);
+  endDate.setDate(startDate.getDate() + 1);
+
+  const bookings = await bookingModel.find({
+    user: _id,
+    start: { $gt: startDate, $lt: endDate },
+  });
+
+  return res.status(200).json({ bookings: bookings });
+};
 
 export const getUnavailableBookings = async (req: Request, res: Response) => {
   const date = new Date(req.body.date);
@@ -13,7 +31,7 @@ export const getUnavailableBookings = async (req: Request, res: Response) => {
 
   const bookings = await bookingModel.find({
     start: {
-      $gte: startDate,
+      $gt: startDate,
       $lt: endDate,
     },
   });
@@ -37,22 +55,23 @@ export const createBooking = async (req: Request, res: Response) => {
   }
   const timeDiff = (end.getTime() - start.getTime()) / (1000 * 60);
   if (!(timeDiff === 30 || timeDiff === 60)) {
-    return res
-      .status(400)
-      .json({ message: "End must be at 30 or 60 minutes after start" });
+    return res.status(400).json({
+      message:
+        "End of booking must be at 30 or 60 minutes after start and consecutively",
+    });
   }
 
   const clashingBookings = await bookingModel.find({
     $or: [
       {
         start: {
-          $gte: start,
+          $gt: start,
           $lt: end,
         },
       },
       {
         end: {
-          $gte: start,
+          $gt: start,
           $lt: end,
         },
       },
@@ -74,9 +93,9 @@ export const createBooking = async (req: Request, res: Response) => {
 };
 
 export const deleteBooking = async (req: Request, res: Response) => {
-  const _id = req.body._id;
+  const id = new mongoose.Types.ObjectId(req.body.id);
 
-  const booking = await bookingModel.findById(_id);
+  const booking = await bookingModel.findById(id);
 
   if (booking?.user.toString() !== req.body.decoded._id.toString()) {
     return res

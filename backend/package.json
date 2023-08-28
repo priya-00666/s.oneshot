@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npx tsc --watch\" \"nodemon dist/index.js\"",
     "start": "node dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -35,3 +36,4 @@
     "@types/otp-generator": "^4.0.0"
   }
 }
+

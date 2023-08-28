@@ -4,9 +4,10 @@ import { authenticate } from "../controllers/auth";
 
 const router: Router = Router();
 
-router.get("/booking", bookingController.getUnavailableBookings);
-router.post("/booking", authenticate, bookingController.createBooking);
+router.post("/booking", authenticate, bookingController.getUnavailableBookings);
+router.post("/booking/book", authenticate, bookingController.createBooking);
 router.delete("/booking", authenticate, bookingController.deleteBooking);
+router.post("/mybookings", authenticate, bookingController.getUserbookings);
 
 export default router;
 

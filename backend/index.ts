@@ -11,7 +11,14 @@ const app: Express = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    preflightContinue: true,
+    credentials: true,
+    optionsSuccessStatus: 200,
+  })
+);
 app.use(cookieParser());
 
 app.use(authRoutes);
@@ -32,3 +39,4 @@ mongoose
   .catch((err) => {
     console.error(err);
   });
+

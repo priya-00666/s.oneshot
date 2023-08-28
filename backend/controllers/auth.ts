@@ -40,7 +40,9 @@ export const sendOtp = async (
     text: otp,
   };
 
-  transporter.sendMail(options);
+  try {
+    transporter.sendMail(options);
+  } catch {}
 
   return res.status(200).send();
 };
@@ -67,7 +69,16 @@ export const loginWithOtp = async (
     expiresIn: "12h",
   });
 
-  return res.status(200).cookie("token", token, { httpOnly: true }).send();
+  return res.status(200).cookie("token", token).send();
+};
+
+export const logout = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  res.clearCookie("token");
+  return res.status(200).send();
 };
 
 export const authenticate = async (
@@ -84,6 +95,7 @@ export const authenticate = async (
       return next();
     }
   }
+
   return res.status(401).send();
 };
 
